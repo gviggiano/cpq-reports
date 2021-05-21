@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xml" href="calculation.xsl" version="2.0" ?>
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:template name="footer-html">
-    <footer>
+    <footer id="footer">
       footer iveco
     </footer>
   </xsl:template>

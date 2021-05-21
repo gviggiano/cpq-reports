@@ -10,6 +10,7 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import htmlToPdfmake from 'html-to-pdfmake';
 // @ts-ignore
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import {Content, TDocumentDefinitions} from 'pdfmake/interfaces';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -33,14 +34,18 @@ export class AppComponent {
   generatePDF(): void {
     const model = new ReportModel(ReportType.HTML);
     this.reportService.generate(model)
-      .pipe(map(doc => new XMLSerializer().serializeToString(doc)))
-      .subscribe(docString => {
+      .subscribe(doc => {
+        const header = this.extractDocumentPart(doc, 'header');
+        const footer = this.extractDocumentPart(doc, 'footer');
+        const docString = new XMLSerializer().serializeToString(doc);
         const html = htmlToPdfmake(docString);
-        const documentDefinition = {
+        const documentDefinition: TDocumentDefinitions = {
           content: [html],
           pageBreakBefore(currentNode: any): boolean {
             return currentNode.style && currentNode.style.indexOf('pdf-pagebreak-before') > -1;
-          }
+          },
+          footer: [footer],
+          header: [header]
         };
         const pdf = pdfMake.createPdf(documentDefinition);
         pdf.download('report.pdf');
@@ -67,5 +72,13 @@ export class AppComponent {
     model.caratteristiche.caratteristica.push({name: 'M.T.T.', value: '33 TON'});
     model.caratteristiche.caratteristica.push({name: 'M.T.T.', value: '33 TON'});
     return model;
+  }
+
+  private extractDocumentPart(doc: Document, partId: string): Content {
+    const part = doc.getElementById(partId);
+    const partString = part != null ? new XMLSerializer().serializeToString(part) : '';
+    const partPdf = htmlToPdfmake(partString);
+    part?.remove();
+    return partPdf;
   }
 }
