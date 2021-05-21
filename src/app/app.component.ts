@@ -41,11 +41,11 @@ export class AppComponent {
         const html = htmlToPdfmake(docString);
         const documentDefinition: TDocumentDefinitions = {
           content: [html],
+          footer: [footer],
+          header: [header],
           pageBreakBefore(currentNode: any): boolean {
             return currentNode.style && currentNode.style.indexOf('pdf-pagebreak-before') > -1;
-          },
-          footer: [footer],
-          header: [header]
+          }
         };
         const pdf = pdfMake.createPdf(documentDefinition);
         pdf.download('report.pdf');
